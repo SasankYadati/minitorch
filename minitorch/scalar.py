@@ -163,8 +163,11 @@ class Scalar:
         assert h.last_fn is not None
         assert h.ctx is not None
 
-        # TODO: Implement for Task 1.3.
-        raise NotImplementedError("Need to implement for Task 1.3")
+        # self is some Scalar y obtained as y = f(x1, x2, ... xn)
+        # self.history has information on function f, inputs x1...xn
+        # dy/dxi = df/dxi
+        grad = h.last_fn._backward(h.ctx, d_output)
+        return list(zip(h.inputs, grad))
 
     def backward(self, d_output: Optional[float] = None) -> None:
         """
