@@ -83,7 +83,7 @@ def topological_sort(variable: Variable) -> Iterable[Variable]:
                     _topological_sort(parent)
                 sorted_variables.append(variable)
                 seen.add(variable.unique_id)
-    
+
     _topological_sort(variable)
     top_sort = reversed(sorted_variables)
     return top_sort
@@ -101,12 +101,12 @@ def backpropagate(variable: Variable, deriv: Any) -> None:
     No return. Should write to its results to the derivative values of each leaf through `accumulate_derivative`.
     """
     sorted = list(topological_sort(variable))
-    
+
     print([(v.data, v.is_leaf()) for v in topological_sort(variable)])
 
     grads = {}
     grads[variable.unique_id] = deriv
-    
+
     for var in sorted:
         if not var.is_leaf():
             grad_parents = var.chain_rule(grads[var.unique_id])
@@ -114,12 +114,10 @@ def backpropagate(variable: Variable, deriv: Any) -> None:
                 if var_parent.unique_id not in grads.keys():
                     grads[var_parent.unique_id] = 0.0
                 grads[var_parent.unique_id] += grad_parent
-    
+
     for var in sorted:
         if var.is_leaf():
             var.accumulate_derivative(grads[var.unique_id])
-
-
 
 
 @dataclass
