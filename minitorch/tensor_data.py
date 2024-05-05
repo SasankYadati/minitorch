@@ -43,8 +43,7 @@ def index_to_position(index: Index, strides: Strides) -> int:
         Position in storage
     """
 
-    # TODO: Implement for Task 2.1.
-    raise NotImplementedError("Need to implement for Task 2.1")
+    return sum([i * s for (i, s) in zip(index, strides)])
 
 
 def to_index(ordinal: int, shape: Shape, out_index: OutIndex) -> None:
@@ -60,8 +59,38 @@ def to_index(ordinal: int, shape: Shape, out_index: OutIndex) -> None:
         out_index : return index corresponding to position.
 
     """
-    # TODO: Implement for Task 2.1.
-    raise NotImplementedError("Need to implement for Task 2.1")
+    size = prod(shape)
+    assert ordinal < size and ordinal >= 0
+    """
+    shape = (5, 5, 4, 2)
+    ordinal = 0
+    out_index = (0, 0, 0, 0)
+
+    shape = (5, 5, 4, 2)
+    ordinal = 10
+    elems_per_dim = (40, 8, 2, 1)
+    out_index = (0, 1, 0, 1)
+
+    shape = (10, 10, 5, 3)
+    ordinal = 52
+    elems_per_dim = (150, 15, 3, 1)
+    out_index = (52//150, 52//15, 7//3, 1//1) = (0, 3, 2, 1)
+
+    shape = (10, 10, 5, 3)
+    ordinal = 1499
+    elems_per_dim = (150, 15, 3, 1)
+    out_index = (1499//150, 149//15, 14//3, 2//1) = (9, 9, 4, 2)
+    """
+
+    elems_per_dim = [1]
+    for dim_s in reversed(shape):
+        elems_per_dim.append(elems_per_dim[-1] * dim_s)
+    elems_per_dim = list(reversed(elems_per_dim[:-1]))
+
+    for i, epd in enumerate(elems_per_dim):
+        out_index[i] = ordinal // epd
+        ordinal = ordinal - epd * (ordinal // epd)
+    out_index = np.array(out_index)
 
 
 def broadcast_index(
@@ -227,8 +256,13 @@ class TensorData:
             range(len(self.shape))
         ), f"Must give a position to each dimension. Shape: {self.shape} Order: {order}"
 
-        # TODO: Implement for Task 2.1.
-        raise NotImplementedError("Need to implement for Task 2.1")
+        new_shape = [0] * len(self.shape)
+        new_strides = [0] * len(self.shape)
+        for i in range(len(self.shape)):
+            new_shape[i] = self.shape[order[i]]
+            new_strides[i] = self.strides[order[i]]
+
+        return TensorData(self._storage, tuple(new_shape), tuple(new_strides))
 
     def to_string(self) -> str:
         s = ""
